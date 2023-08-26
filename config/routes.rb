@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   # root "articles#index"
   get '/public', to: 'public#public'
   get '/private', to: 'private#private'
+  get '/login', to: 'login#login'
 end

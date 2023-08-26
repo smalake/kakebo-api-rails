@@ -4,7 +4,6 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.string :uid
       t.integer :group_id
       t.string :name
-      t.integer :type
 
       t.timestamps
     end
