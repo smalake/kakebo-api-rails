@@ -5,5 +5,10 @@ Rails.application.routes.draw do
   # root "articles#index"
   get '/public', to: 'public#public'
   get '/private', to: 'private#private'
-  get '/login', to: 'login#login'
+  post '/login', to: 'login#login'
+  post '/event', to: 'event#create'
+  # put '/event/:id', to: 'event#update'
+  # get '/event', to: 'event#get_all'
+  # get '/event/:id', to: 'event#get_one'
+  # delete '/event/:id' to: 'event#delete'
 end
