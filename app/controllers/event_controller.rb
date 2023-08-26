@@ -1,6 +1,7 @@
 class EventController < ApplicationController
     include Secured
 
+    # イベントの新規作成
     def create
         begin
             user = User.find_by(uid: @auth_user_id)
@@ -43,13 +44,67 @@ class EventController < ApplicationController
         end
     end
 
+    # イベントの更新
     # def update
 
     # end
 
-    # def get_all
+    # ユーザの全イベントを取得
+    def get_all
+        # グループIDを取得するためユーザ情報を取得する
+        user = User.find_by(uid: @auth_user_id)
 
-    # end
+        @all_data = Event.where(group_id: user.group_id)
+        result = grouping_events
+        puts result
+    end
+
+    # 全イベントをグルーピング
+    def grouping_events
+        events = {}
+        totals = {}
+        graphs = {}
+
+        @all_data.each do |data|
+            format_date = Time.zone.parse(data.date)
+
+            event = {
+                'id' => data.id,
+                'amount' => data.amount,
+                'category' => data.category,
+                'store_name' => data.store_name,
+                'data' => data.date,
+                'create_user' => data.create_user,
+                'update_user' => data.update_user,
+                'created_at' => data.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'updated_at' => data.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+
+            # イベントを格納
+            if events.key?(format_date.strftime('%Y-%m-%d'))
+                events[format_date.strftime('%Y-%m-%d')].push(event)
+            else
+                events[format_date.strftime('%Y-%m-%d')] = [event]
+            end
+
+            # 月ごとの合計
+            if totals.key?(format_date.strftime('%Y-%m'))
+                totals[format_date.strftime('%Y-%m')] += data.amount
+            else
+                totals[format_date.strftime('%Y-%m')] = data.amount
+            end
+
+            # グラフ用データ
+            if graphs.key?(format_date.strftime('%Y-%m'))
+                graphs[format_date.strftime('%Y-%m')][data.category] += data.amount
+            else
+                graph = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                graph[data.category] = data.amount
+                graphs[format_date.strftime('%Y-%m')] = graph
+            end
+        end
+        return {'event' => events, 'total' => totals, 'graph' => graphs}
+    end
 
     # def get_one
 
