@@ -3,10 +3,12 @@ class LoginController < ApplicationController
 
     def login
         begin
-            ActiveRecord::Base.transaction do
-                if User.where(uid: @auth_user_id).exists?
-                    render json: { message: ['login ok'] }, status: :ok
-                else
+            if User.where(uid: @auth_user_id).exists?
+                # ユーザが登録されている場合はログイン
+                render json: { message: ['login ok'] }, status: :ok
+            else
+                # ユーザが登録されていない場合はDBへと登録
+                ActiveRecord::Base.transaction do
                     # DBへ登録処理
                     group = Group.new(manage_uid: @auth_user_id)
                     group.save!
