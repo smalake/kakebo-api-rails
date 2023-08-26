@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   get '/private', to: 'private#private'
   post '/login', to: 'login#login'
   post '/event', to: 'event#create'
-  # put '/event/:id', to: 'event#update'
+  put '/event/:id', to: 'event#update'
   get '/event', to: 'event#get_all'
   get '/event/:id', to: 'event#get_one'
   # delete '/event/:id' to: 'event#delete'

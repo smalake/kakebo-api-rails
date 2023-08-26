@@ -45,9 +45,21 @@ class EventController < ApplicationController
     end
 
     # イベントの更新
-    # def update
-
-    # end
+    def update
+        begin
+            event = Event.find(params[:id])
+            event.update(
+                amount: params[:amount],
+                category: params[:category],
+                store_name: params[:store_name],
+                date: params[:date],
+                update_user: @auth_user_id
+            )
+            render json: { message: 'Event updated successfully' }, status: :ok
+        rescue => e
+            render json: { message: 'Event update failed', errors: e }, status: :unprocessable_entity
+        end
+    end
 
     # ユーザの全イベントを取得
     def get_all
