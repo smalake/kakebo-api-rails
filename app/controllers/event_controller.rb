@@ -36,10 +36,10 @@ class EventController < ApplicationController
                         group_id: user.group_id
                     )
                 end
-                render json: { message: ['Event register success']}, status: :ok
+                render json: { message: 'Event register success'}, status: :ok
             end
         rescue => e
-            render json: {message: ['Event register failed'], errors: e}, status: :internal_server_error
+            render json: {message: 'Event register failed', errors: e}, status: :internal_server_error
         end
     end
 
