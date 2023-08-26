@@ -57,58 +57,83 @@ class EventController < ApplicationController
         @all_data = Event.where(group_id: user.group_id)
         result = grouping_events
         puts result
+        render json: result, status: :ok
     end
 
     # 全イベントをグルーピング
     def grouping_events
-        events = {}
-        totals = {}
-        graphs = {}
+        begin
+            events = {}
+            totals = {}
+            graphs = {}
 
-        @all_data.each do |data|
-            format_date = Time.zone.parse(data.date)
+            @all_data.each do |data|
+                format_date = Time.zone.parse(data.date)
 
-            event = {
-                'id' => data.id,
+                event = {
+                    'id' => data.id,
+                    'amount' => data.amount,
+                    'category' => data.category,
+                    'store_name' => data.store_name,
+                    'data' => data.date,
+                    'create_user' => data.create_user,
+                    'update_user' => data.update_user,
+                    'created_at' => data.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    'updated_at' => data.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+                }
+
+                # イベントを格納
+                if events.key?(format_date.strftime('%Y-%m-%d'))
+                    events[format_date.strftime('%Y-%m-%d')].push(event)
+                else
+                    events[format_date.strftime('%Y-%m-%d')] = [event]
+                end
+
+                # 月ごとの合計
+                if totals.key?(format_date.strftime('%Y-%m'))
+                    totals[format_date.strftime('%Y-%m')] += data.amount
+                else
+                    totals[format_date.strftime('%Y-%m')] = data.amount
+                end
+
+                # グラフ用データ
+                if graphs.key?(format_date.strftime('%Y-%m'))
+                    graphs[format_date.strftime('%Y-%m')][data.category] += data.amount
+                else
+                    graph = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    graph[data.category] = data.amount
+                    graphs[format_date.strftime('%Y-%m')] = graph
+                end
+            end
+            return {'event' => events, 'total' => totals, 'graph' => graphs}
+        rescue => e
+            render json: {message: 'Event grouping failed', errors: e}, status: :internal_server_error
+        end
+    end
+
+    def get_one
+        begin
+            id = params[:id]
+            data = Event.select('events.amount', 'events.category', 'events.store_name', 'events.date', 'events.created_at', 'events.updated_at', 'users1.name as create_user', 'users2.name as update_user')
+                .joins('LEFT JOIN users AS users1 ON events.create_user = users1.uid')
+                .joins('LEFT JOIN users AS users2 ON events.update_user = users2.uid')
+                .where('events.id = ?', id).first
+
+            result = {
                 'amount' => data.amount,
                 'category' => data.category,
                 'store_name' => data.store_name,
-                'data' => data.date,
+                'date' => data.date,
                 'create_user' => data.create_user,
                 'update_user' => data.update_user,
                 'created_at' => data.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'updated_at' => data.updated_at.strftime('%Y-%m-%d %H:%M:%S')
-            }
-
-            # イベントを格納
-            if events.key?(format_date.strftime('%Y-%m-%d'))
-                events[format_date.strftime('%Y-%m-%d')].push(event)
-            else
-                events[format_date.strftime('%Y-%m-%d')] = [event]
-            end
-
-            # 月ごとの合計
-            if totals.key?(format_date.strftime('%Y-%m'))
-                totals[format_date.strftime('%Y-%m')] += data.amount
-            else
-                totals[format_date.strftime('%Y-%m')] = data.amount
-            end
-
-            # グラフ用データ
-            if graphs.key?(format_date.strftime('%Y-%m'))
-                graphs[format_date.strftime('%Y-%m')][data.category] += data.amount
-            else
-                graph = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                graph[data.category] = data.amount
-                graphs[format_date.strftime('%Y-%m')] = graph
-            end
+            } 
+            render json: result, status: :ok
+        rescue => e
+            render json: {message: 'Event get failed', errors: e}, status: :internal_server_error
         end
-        return {'event' => events, 'total' => totals, 'graph' => graphs}
     end
-
-    # def get_one
-
-    # end
 
     # def delete
 

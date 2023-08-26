@@ -9,6 +9,6 @@ Rails.application.routes.draw do
   post '/event', to: 'event#create'
   # put '/event/:id', to: 'event#update'
   get '/event', to: 'event#get_all'
-  # get '/event/:id', to: 'event#get_one'
+  get '/event/:id', to: 'event#get_one'
   # delete '/event/:id' to: 'event#delete'
 end
