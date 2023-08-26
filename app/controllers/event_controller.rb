@@ -123,6 +123,7 @@ class EventController < ApplicationController
         end
     end
 
+    # 指定したイベントを取得
     def get_one
         begin
             id = params[:id]
@@ -147,7 +148,13 @@ class EventController < ApplicationController
         end
     end
 
-    # def delete
-
-    # end
+    # 指定したイベントを削除
+    def delete
+        begin
+            Event.find(params[:id]).destroy
+            render json: { message: 'Event delete success'}, status: :ok
+        rescue => e
+            render json: { message: 'Event delete failed', errors: e }, status: :unprocessable_entity
+        end
+    end
 end
