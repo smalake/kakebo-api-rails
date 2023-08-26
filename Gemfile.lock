@@ -168,6 +168,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   debug
+  dotenv
   dotenv-rails
   jwt
   mysql2
