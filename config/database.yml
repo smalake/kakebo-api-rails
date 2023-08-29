@@ -13,15 +13,15 @@ default: &default
   adapter: mysql2
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password: local_password
+  username: <%= ENV["DB_USER"] %>
+  password: <%= ENV["DB_PASSWORD"] %>
   host: 127.0.0.1
   socket: /var/lib/mysql/mysql.sock
   port: 3308
 
 development:
   <<: *default
-  database: kakebo-rails
+  database: <%= ENV["DB_SCHEMA"] %>
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -52,6 +52,6 @@ test:
 #
 production:
   <<: *default
-  database: kakebo_api_rails_production
-  username: kakebo_api_rails
-  password: <%= ENV["KAKEBO_API_RAILS_DATABASE_PASSWORD"] %>
+  database: <%= ENV["DB_SCHEMA"] %>
+  username: <%= ENV["DB_USER"] %>
+  password: <%= ENV["DB_PASSWORD"] %>
