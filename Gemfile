@@ -11,6 +11,7 @@ gem "rails", "~> 7.0.7", ">= 7.0.7.2"
 gem "mysql2"
 
 # Use the Puma web server [https://github.com/puma/puma]
+gem 'puma-daemon', require: false
 gem "puma", "~> 5.0"
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]

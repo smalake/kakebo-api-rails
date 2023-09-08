@@ -13,11 +13,12 @@ if rails_env == 'production'
     File.join(rails_root, 'log', 'puma-error.log'),
     true
   )
+  require 'puma/daemon'
   daemonize
 
 else
   # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
-  port        ENV.fetch("PORT") { 3000 }
+  port        ENV.fetch("PORT") { 8000 }
 end
 
 # Specifies the `environment` that Puma will run in.
