@@ -66,6 +66,7 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    bcrypt (3.1.19)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     builder (3.2.4)
@@ -82,10 +83,6 @@ GEM
     erubi (1.12.0)
     globalid (1.1.0)
       activesupport (>= 5.0)
-    haml (6.1.2)
-      temple (>= 0.8.2)
-      thor
-      tilt
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     io-console (0.6.0)
@@ -118,11 +115,6 @@ GEM
     nio4r (2.5.9)
     nokogiri (1.15.4-arm64-darwin)
       racc (~> 1.4)
-    prettier (4.0.2)
-      syntax_tree (>= 4.0.1)
-      syntax_tree-haml (>= 2.0.0)
-      syntax_tree-rbs (>= 0.2.0)
-    prettier_print (1.2.1)
     puma (5.6.7)
       nio4r (~> 2.0)
     puma-daemon (0.3.2)
@@ -163,22 +155,9 @@ GEM
       thor (~> 1.0)
       zeitwerk (~> 2.5)
     rake (13.0.6)
-    rbs (3.2.1)
     reline (0.3.8)
       io-console (~> 0.5)
-    syntax_tree (6.1.1)
-      prettier_print (>= 1.2.0)
-    syntax_tree-haml (4.0.3)
-      haml (>= 5.2)
-      prettier_print (>= 1.2.1)
-      syntax_tree (>= 6.0.0)
-    syntax_tree-rbs (1.0.0)
-      prettier_print
-      rbs
-      syntax_tree (>= 2.0.1)
-    temple (0.10.2)
     thor (1.2.2)
-    tilt (2.2.0)
     timeout (0.4.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -191,21 +170,17 @@ PLATFORMS
   arm64-darwin-22
 
 DEPENDENCIES
+  bcrypt (~> 3.1.7)
   bootsnap
   debug
   dotenv
   dotenv-rails
   jwt
   mysql2
-  prettier
-  prettier_print
   puma (~> 5.0)
   puma-daemon
   rack-cors
   rails (~> 7.0.7, >= 7.0.7.2)
-  syntax_tree
-  syntax_tree-haml
-  syntax_tree-rbs
   tzinfo-data
 
 RUBY VERSION
