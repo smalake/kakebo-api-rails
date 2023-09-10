@@ -25,7 +25,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_25_132922) do
   end
 
   create_table "groups", charset: "utf8mb4", force: :cascade do |t|
-    t.string "manage_uid"
+    t.string "manage_user"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -35,6 +35,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_25_132922) do
     t.string "password_digest", null: false
     t.integer "group_id", null: false
     t.string "name"
+    t.integer "register_type"
     t.string "refresh_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
