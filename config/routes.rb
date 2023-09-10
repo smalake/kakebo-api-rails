@@ -1,8 +1,11 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      # ログイン
-      post "/login", to: "login#login"
+      # 認証関連
+      post "/login", to: "sessions#login"
+      post "/logout", to: "sessions#logout"
+      post "/register", to: "sessions#register"
+      get "/refresh", to: "sessions#refresh"
 
       # イベント
       post "/event", to: "event#create"
