@@ -5,7 +5,6 @@ Rails.application.routes.draw do
       post "/login", to: "login#login"
       post "/auth", to: "sessions#create"
       get "/refresh", to: "sessions#refresh"
-      get "/home", to: "home#test"
 
       # イベント
       post "/event", to: "event#create"
