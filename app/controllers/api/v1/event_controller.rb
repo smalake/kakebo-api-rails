@@ -4,7 +4,7 @@ class Api::V1::EventController < ApplicationController
   # イベントの新規作成
   def create
     begin
-      user = User.find_by(id: @auth_user_id)
+      user = User.find(@auth_user_id)
       ActiveRecord::Base.transaction do
         if params[:amount2] == 0
           Event.create!(
@@ -73,7 +73,7 @@ class Api::V1::EventController < ApplicationController
   # ユーザの全イベントを取得
   def get_all
     # グループIDを取得するためユーザ情報を取得する
-    user = User.find_by(id: @auth_user_id)
+    user = User.find(@auth_user_id)
 
     @all_data = Event.where(group_id: user.group_id)
     result = grouping_events

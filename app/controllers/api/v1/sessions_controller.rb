@@ -41,13 +41,33 @@ class Api::V1::SessionsController < ApplicationController
     end
   end
 
-  # ログアウト
-  def logout
+  # グループへの参加（子として新規登録）
+  def join
     begin
-      cookies.delete :jwt
-      render status: :ok
+      # グループIDを取得
+      payload, = JWT.decode(params[:group], ENV["TOKEN_SECRET"])
+      # DBへ登録処理
+      user = User.create!(
+        email: params[:email],
+        name: params[:name],
+        password_digest: BCrypt::Password.create(params[:password]),
+        group_id: payload["data"]["group_id"],
+        register_type: params[:type],
+      )
+      create_token(user.id)
     rescue => e
       render json: { 'message': e }, status: :internal_server_error
+    end
+  end
+
+  # 招待リンクから管理者の名前を取得
+  def get_parent_name
+    begin
+      payload, = JWT.decode(params[:group], ENV["TOKEN_SECRET"])
+      name = payload["data"]["parent_name"]
+      render json: { name: name }, status: :ok
+    rescue => e
+      render json: { message: "faild to get parent name", error: e }, status: :internal_server_error
     end
   end
 
