@@ -3,7 +3,7 @@ class Api::V1::SettingController < ApplicationController
 
   def get
     begin
-      user = User.find_by(id: @auth_user_id)
+      user = User.find(@auth_user_id)
       render json: { "name" => user.name }, status: :ok
     rescue => e
       render json: {
@@ -16,7 +16,7 @@ class Api::V1::SettingController < ApplicationController
 
   def update
     begin
-      user = User.find_by(id: @auth_user_id)
+      user = User.find(@auth_user_id)
       user.update(name: params[:name])
       render json: { message: "Name update successfully" }, status: :ok
     rescue => e
@@ -41,7 +41,7 @@ class Api::V1::SettingController < ApplicationController
   # グループへの招待リンクを発行
   def invite
     begin
-      user = User.find_by(id: @auth_user_id)
+      user = User.find(@auth_user_id)
       data = { group_id: user.group_id, parent_name: user.name }
       token = JWT.encode({ data: data, exp: Time.current.since(10.minute).to_i }, ENV["TOKEN_SECRET"])
 
