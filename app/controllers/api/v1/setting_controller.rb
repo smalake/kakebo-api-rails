@@ -50,4 +50,18 @@ class Api::V1::SettingController < ApplicationController
       render json: { message: "faild to generate invite link", error: e }, status: :internal_server_error
     end
   end
+
+  # ログインユーザがグループの親かどうかチェック
+  def is_parent
+    begin
+      group = Group.where(manage_user: @auth_user_id).count
+      if group == 0
+        render json: { parent: false }, status: :ok
+      else
+        render json: { parent: true }, status: :ok
+      end
+    rescue => e
+      render json: { message: "check error", error: e }, status: internal_server_error
+    end
+  end
 end

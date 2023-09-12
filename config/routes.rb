@@ -20,6 +20,7 @@ Rails.application.routes.draw do
       put "/display-name", to: "setting#update"
       post "/logout", to: "setting#logout"
       get "/invite", to: "setting#invite"
+      get "/is-parent", to: "setting#is_parent"
     end
   end
 end
