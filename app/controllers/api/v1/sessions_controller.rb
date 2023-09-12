@@ -64,7 +64,6 @@ class Api::V1::SessionsController < ApplicationController
   def get_parent_name
     begin
       payload, = JWT.decode(params[:group], ENV["TOKEN_SECRET"])
-      puts payload
       name = payload["data"]["parent_name"]
       render json: { name: name }, status: :ok
     rescue => e
