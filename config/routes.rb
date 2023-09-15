@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       # 認証関連
       post "/login", to: "sessions#login"
+      post "/google-login", to: "sessions#google_login"
       post "/register", to: "sessions#register"
       post "/join", to: "sessions#join"
       get "/get-name/:group", to: "sessions#get_parent_name", constraints: { group: /[^\/]+/ }

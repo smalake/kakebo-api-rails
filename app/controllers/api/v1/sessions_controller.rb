@@ -2,8 +2,7 @@ class Api::V1::SessionsController < ApplicationController
   include CreateToken
   # ログイン
   def login
-    user = User.find_by(email: params[:email])
-
+    user = User.find_by(email: params[:email], register_type: 1)
     if user&.authenticate(params[:password])
       create_token(user.id)
     else
@@ -11,17 +10,37 @@ class Api::V1::SessionsController < ApplicationController
     end
   end
 
+  # Googleアカウントでログイン
+  def google_login
+    begin
+      user = User.find_by(email: params[:email], register_type: 2)
+      if user != nil
+        create_token(user.id)
+      else
+        render json: { message: "not register user" }, status: :unauthorized
+      end
+    rescue => e
+      render json: { error: e }, status: :unauthorized
+    end
+  end
+
   # 新規登録
   def register
     begin
       ActiveRecord::Base.transaction do
+        # メールアドレスの重複チェック
+        if User.find_by(email: params[:email])
+          render json: { error: "メールアドレスがすでに使用されています。" }, status: :conflict
+          return
+        end
+
         # DBへ登録処理
         group = Group.new()
         group.save!
         user = User.new(
           email: params[:email],
-          name: params[:name],
           password_digest: BCrypt::Password.create(params[:password]),
+          name: params[:name],
           group_id: group.id,
           register_type: params[:type],
         )
