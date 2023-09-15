@@ -8,3 +8,6 @@ up:
 
 down:
 	docker-compose down
+
+migrate:
+	docker-compose run web rails db:migrate
