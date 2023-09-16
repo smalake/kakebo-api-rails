@@ -5,26 +5,26 @@ module Secured
   extend ActiveSupport::Concern
 
   included do
-    before_action :authenticate_request!
+    before_action :verify_token
   end
 
   private
 
-  def authenticate_request!
-    get_data = auth_token
-    @auth_user_name = get_data[0]['.name']
-    @auth_user_id = get_data[0]['sub']
-  rescue JWT::VerificationError, JWT::DecodeError
-    render json: { errors: ['Not Authenticated'] }, status: :unauthorized
-  end
+  def verify_token
+    auth_header = request.headers["Authorization"]
+    return render status: :unauthorized unless auth_header
 
-  def http_token
-    if request.headers['Authorization'].present?
-      request.headers['Authorization'].split(' ').last
+    token = auth_header.split(" ")[1]
+
+    begin
+      payload, = JWT.decode(token, ENV["TOKEN_SECRET"])
+      @auth_user_id = payload["data"]["user_id"]
+    rescue JWT::ExpiredSignature
+      return render json: { 'error': "token expired" }, status: :forbidden
+    rescue JWT::VerificationError
+      return render json: { 'error': "unauthorized" }, status: :unauthorized
+    rescue => e
+      return render json: { 'error': e }, status: :internal_server_error
     end
-  end
-
-  def auth_token
-    JsonWebToken.verify(http_token)
   end
 end

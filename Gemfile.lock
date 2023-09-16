@@ -66,6 +66,7 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    bcrypt (3.1.19)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     builder (3.2.4)
@@ -112,10 +113,17 @@ GEM
     net-smtp (0.3.3)
       net-protocol
     nio4r (2.5.9)
+    nokogiri (1.15.4-aarch64-linux)
+      racc (~> 1.4)
     nokogiri (1.15.4-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
     puma (5.6.7)
       nio4r (~> 2.0)
+    puma-daemon (0.3.2)
+      puma (>= 5.0)
+      rack
     racc (1.7.1)
     rack (2.2.8)
     rack-cors (2.0.1)
@@ -163,9 +171,12 @@ GEM
     zeitwerk (2.6.11)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
+  bcrypt (~> 3.1.7)
   bootsnap
   debug
   dotenv
@@ -173,6 +184,7 @@ DEPENDENCIES
   jwt
   mysql2
   puma (~> 5.0)
+  puma-daemon
   rack-cors
   rails (~> 7.0.7, >= 7.0.7.2)
   tzinfo-data

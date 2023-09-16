@@ -11,7 +11,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2023_08_25_132922) do
-  create_table "events", charset: "utf8mb4", force: :cascade do |t|
+  create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "amount"
     t.integer "category"
     t.string "date"
@@ -24,18 +24,22 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_25_132922) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "groups", charset: "utf8mb4", force: :cascade do |t|
-    t.string "manage_uid"
+  create_table "groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "manage_user"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "users", charset: "utf8mb4", force: :cascade do |t|
-    t.string "uid"
-    t.integer "group_id"
+  create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest"
+    t.integer "group_id", null: false
     t.string "name"
+    t.integer "register_type"
+    t.string "refresh_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
 end

@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 8080 -b '0.0.0.0'"
+    container_name: rails_api
+    volumes:
+      - .:/kakebo-api
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+  db:
+    platform: linux/amd64
+    image: mysql:5.7.38
+    container_name: rails_mysql
+    environment:
+      MYSQL_USER: local_user
+      MYSQL_PASSWORD: local_password
+      MYSQL_ROOT_PASSWORD: local_password
+      TZ: "Asia/Tokyo"
+    volumes:
+      - rails-db-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+
+volumes:
+  rails-db-data:
