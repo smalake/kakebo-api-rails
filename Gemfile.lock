@@ -70,6 +70,7 @@ GEM
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     builder (3.2.4)
+    colorize (0.8.1)
     concurrent-ruby (1.2.2)
     crass (1.0.6)
     date (3.3.3)
@@ -119,12 +120,11 @@ GEM
       racc (~> 1.4)
     nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
-    pg (1.5.4)
+    planetscale_rails (0.1.4)
+      colorize (~> 0.8.1)
+      rails (~> 7.0)
     puma (5.6.7)
       nio4r (~> 2.0)
-    puma-daemon (0.3.2)
-      puma (>= 5.0)
-      rack
     racc (1.7.1)
     rack (2.2.8)
     rack-cors (2.0.1)
@@ -184,9 +184,8 @@ DEPENDENCIES
   dotenv-rails
   jwt
   mysql2
-  pg (~> 1.4)
+  planetscale_rails
   puma (~> 5.0)
-  puma-daemon
   rack-cors
   rails (~> 7.0.7, >= 7.0.7.2)
   tzinfo-data
