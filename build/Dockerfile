@@ -18,5 +18,5 @@ ENTRYPOINT ["entrypoint.sh"]
 
 COPY . /kakebo-api
 
-EXPOSE 8080
-CMD ["rails", "server", "-b", "0.0.0.0", "-p", "8080", "-e", "production"]
+EXPOSE 3000
+CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3000", "-e", "production"]
