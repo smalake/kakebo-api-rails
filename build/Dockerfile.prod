@@ -20,5 +20,5 @@ ENTRYPOINT ["entrypoint.sh"]
 COPY . /kakebo-api
 
 EXPOSE 8080
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb" , "-b", "0.0.0.0", "-p", "8080"]
 # CMD ["rails", "server", "-b", "0.0.0.0", "-p", "8080", "-e", "production"]
