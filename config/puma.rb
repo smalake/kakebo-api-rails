@@ -1,5 +1,6 @@
-threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
-threads threads_count, threads_count
+max_threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
+min_threads_count = ENV.fetch("RAILS_MIN_THREADS") { max_threads_count }
+threads min_threads_count, max_threads_count
 
 rails_env = ENV.fetch("RAILS_ENV") { "development" }
 
@@ -7,7 +8,7 @@ rails_env = ENV.fetch("RAILS_ENV") { "development" }
 port ENV.fetch("PORT") { 3000 }
 
 # Specifies the `environment` that Puma will run in.
-environment rails_env
+# environment rails_env
 
 # Specifies the `pidfile` that Puma will use.
 pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }
