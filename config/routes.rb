@@ -23,6 +23,9 @@ Rails.application.routes.draw do
       post "/logout", to: "setting#logout"
       get "/invite", to: "setting#invite"
       get "/is-parent", to: "setting#is_parent"
+
+      # ヘルスチェック用
+      get "health-check", to: "healthcheck#get"
     end
   end
 end
