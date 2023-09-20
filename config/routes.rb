@@ -7,7 +7,8 @@ Rails.application.routes.draw do
       post "/register", to: "sessions#register"
       post "/join", to: "sessions#join"
       get "/get-name/:group", to: "sessions#get_parent_name", constraints: { group: /[^\/]+/ }
-      get "/refresh", to: "sessions#refresh"
+      get "/login-check", to: "sessions#login_check"
+      # get "/refresh", to: "sessions#refresh"
 
       # イベント
       post "/event", to: "event#create"
