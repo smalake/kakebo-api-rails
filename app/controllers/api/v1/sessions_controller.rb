@@ -90,6 +90,24 @@ class Api::V1::SessionsController < ApplicationController
     end
   end
 
+  # トークンからログイン状態をチェック
+  def login_check
+    auth_header = request.headers["Authorization"]
+    return render status: :unauthorized unless auth_header
+    token = auth_header.split(" ")[1]
+    begin
+      payload, = JWT.decode(token, ENV["TOKEN_SECRET"])
+      user_id = payload["data"]["user_id"]
+      if user_id
+        render status: :ok
+      else
+        render status: :unauthorized
+      end
+    rescue
+      render status: :unauthorized
+    end
+  end
+
   # リフレッシュトークンからアクセストークンを発行
   def refresh
     return render status: :unauthorized unless cookies[:jwt]
