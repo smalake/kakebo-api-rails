@@ -3,6 +3,15 @@ class Api::V1::EventController < ApplicationController
 
   # イベントの新規作成
   def create
+    if params[:is_private]
+      private_event(params)
+    else
+      group_event(params)
+    end
+  end
+
+  # グループ用家計簿に登録
+  def group_event(params)
     begin
       user = User.find(@auth_user_id)
       ActiveRecord::Base.transaction do
@@ -49,6 +58,47 @@ class Api::V1::EventController < ApplicationController
     end
   end
 
+  # 個人用家計簿に登録
+  def private_event(params)
+    begin
+      ActiveRecord::Base.transaction do
+        if params[:amount2] == 0
+          Event.create!(
+            amount: params[:amount1],
+            category: params[:category1],
+            store_name: params[:store_name],
+            date: params[:date],
+            user_id: @auth_user_id,
+          )
+        else
+          event1 =
+            Event.new(
+              amount: params[:amount1] - params[:amount2],
+              category: params[:category1],
+              store_name: params[:store_name],
+              date: params[:date],
+              user_id: @auth_user_id,
+            )
+          event1.save!
+          Event.create!(
+            amount: params[:amount2],
+            category: params[:category2],
+            store_name: params[:store_name],
+            date: params[:date],
+            user_id: @auth_user_id,
+          )
+        end
+        render json: { message: "Private Event register success" }, status: :ok
+      end
+    rescue => e
+      render json: {
+               message: "Event register failed",
+               errors: e,
+             },
+             status: :internal_server_error
+    end
+  end
+
   # イベントの更新
   def update
     begin
@@ -77,7 +127,6 @@ class Api::V1::EventController < ApplicationController
 
     @all_data = Event.where(group_id: user.group_id)
     result = grouping_events
-    puts result
     render json: result, status: :ok
   end
 
