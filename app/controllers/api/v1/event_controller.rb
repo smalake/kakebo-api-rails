@@ -3,7 +3,7 @@ class Api::V1::EventController < ApplicationController
 
   # イベントの新規作成
   def create
-    if params[:is_private]
+    if params[:isPrivate] == 1
       private_event(params)
     else
       group_event(params)
@@ -63,7 +63,7 @@ class Api::V1::EventController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         if params[:amount2] == 0
-          Event.create!(
+          Private.create!(
             amount: params[:amount1],
             category: params[:category1],
             store_name: params[:store_name],
@@ -72,7 +72,7 @@ class Api::V1::EventController < ApplicationController
           )
         else
           event1 =
-            Event.new(
+            Private.new(
               amount: params[:amount1] - params[:amount2],
               category: params[:category1],
               store_name: params[:store_name],
@@ -80,7 +80,7 @@ class Api::V1::EventController < ApplicationController
               user_id: @auth_user_id,
             )
           event1.save!
-          Event.create!(
+          Private.create!(
             amount: params[:amount2],
             category: params[:category2],
             store_name: params[:store_name],
