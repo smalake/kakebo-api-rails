@@ -17,7 +17,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_21_035624) do
     t.string "date"
     t.string "store_name"
     t.integer "group_id"
-    t.boolean "is_private", default: false
     t.string "create_user"
     t.string "update_user"
     t.datetime "created_at", null: false
