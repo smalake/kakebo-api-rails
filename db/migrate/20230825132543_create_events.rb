@@ -6,7 +6,6 @@ class CreateEvents < ActiveRecord::Migration[7.0]
       t.string :date
       t.string :store_name
       t.integer :group_id
-      t.boolean :is_private, default: 0
       t.string :create_user
       t.string :update_user
 

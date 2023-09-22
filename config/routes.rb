@@ -17,6 +17,12 @@ Rails.application.routes.draw do
       get "/event/:id", to: "event#get_one"
       delete "/event/:id", to: "event#delete"
 
+      # プライベートイベント
+      put "/private/:id", to: "private#update"
+      get "/private", to: "private#get_all"
+      get "/private/:id", to: "private#get_one"
+      delete "/private/:id", to: "private#delete"
+
       # 設定
       get "/display-name", to: "setting#get"
       put "/display-name", to: "setting#update"
