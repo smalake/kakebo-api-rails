@@ -125,19 +125,18 @@ class Api::V1::EventController < ApplicationController
     # グループIDを取得するためユーザ情報を取得する
     user = User.find(@auth_user_id)
 
-    @all_data = Event.where(group_id: user.group_id)
-    result = grouping_events
-    render json: result, status: :ok
+    all_data = Event.where(group_id: user.group_id)
+    grouping_events(all_data)
   end
 
   # 全イベントをグルーピング
-  def grouping_events
+  def grouping_events(all_data)
     begin
       events = {}
       totals = {}
       graphs = {}
 
-      @all_data.each do |data|
+      all_data.each do |data|
         format_date = Time.zone.parse(data.date)
 
         event = {
@@ -177,7 +176,7 @@ class Api::V1::EventController < ApplicationController
           graphs[format_date.strftime("%Y-%m")] = graph
         end
       end
-      return { "event" => events, "total" => totals, "graph" => graphs }
+      render json: { "event" => events, "total" => totals, "graph" => graphs }, status: :ok
     rescue => e
       render json: {
                message: "Event grouping failed",
