@@ -1,4 +1,5 @@
 class Api::V1::PrivateController < ApplicationController
+  include Secured
   # イベントの更新
   def update
     begin
@@ -22,8 +23,7 @@ class Api::V1::PrivateController < ApplicationController
   # ユーザの全プライベートイベントを取得
   def get_all
     all_data = Private.where(user_id: @auth_user_id)
-    result = grouping_events_private(all_data)
-    render json: result, status: :ok
+    grouping_events_private(all_data)
   end
 
   # 全プライベートイベントをグルーピング
@@ -33,7 +33,7 @@ class Api::V1::PrivateController < ApplicationController
       totals = {}
       graphs = {}
 
-      @all_data.each do |data|
+      all_data.each do |data|
         format_date = Time.zone.parse(data.date)
 
         event = {
@@ -71,7 +71,7 @@ class Api::V1::PrivateController < ApplicationController
           graphs[format_date.strftime("%Y-%m")] = graph
         end
       end
-      return { "event" => events, "total" => totals, "graph" => graphs }
+      render json: { "event" => events, "total" => totals, "graph" => graphs }, status: :ok
     rescue => e
       render json: {
                message: "Private Event grouping failed",
