@@ -1,9 +1,9 @@
 class Api::V1::SessionsController < ApplicationController
   include CreateToken
   # ログイン
-  def 
-    Rails.logger.error("【ロガーテスト】")
+  def login
     user = User.find_by(email: params[:email], register_type: 1)
+    Rails.logger.error("【ロガーテスト】")
     if user&.authenticate(params[:password])
       create_token(user.id)
     else
