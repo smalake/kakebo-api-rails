@@ -19,7 +19,7 @@ module KakeboRails
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    config.logger = Logtail::Logger.create_default_logger(ENV["LOGTAIL_SECRET"])
+    config.logger = Logtail::Logger.create_default_logger("nDhG1kYD88FVRHgXsNhX2jyi")
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
