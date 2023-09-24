@@ -52,4 +52,5 @@ gem "dotenv-rails"
 gem "jwt"
 gem "dotenv"
 gem "planetscale_rails"
+gem "logtail-rails"
 # gem "rails_semantic_logger" # ログをJSON形式にする
