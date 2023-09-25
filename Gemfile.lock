@@ -90,17 +90,6 @@ GEM
     irb (1.7.4)
       reline (>= 0.3.6)
     jwt (2.7.1)
-    logtail (0.1.12)
-      msgpack (~> 1.0)
-    logtail-rack (0.2.4)
-      logtail (~> 0.1)
-      rack (>= 1.2, < 4.0)
-    logtail-rails (0.2.4)
-      actionpack (>= 5.0.0)
-      activerecord (>= 5.0.0)
-      logtail (~> 0.1)
-      logtail-rack (~> 0.1)
-      railties (>= 5.0.0)
     loofah (2.21.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -194,7 +183,6 @@ DEPENDENCIES
   dotenv
   dotenv-rails
   jwt
-  logtail-rails
   mysql2
   planetscale_rails
   puma (~> 5.0)
