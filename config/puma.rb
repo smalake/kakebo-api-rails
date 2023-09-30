@@ -7,6 +7,8 @@ rails_env = ENV.fetch("RAILS_ENV") { "development" }
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT") { 3000 }
 
+stdout_redirect "log/puma.stdout.log", "log/puma.stderr.log", true
+
 # Specifies the `environment` that Puma will run in.
 # environment rails_env
 

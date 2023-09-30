@@ -3,11 +3,10 @@ class Api::V1::SessionsController < ApplicationController
   # ログイン
   def login
     user = User.find_by(email: params[:email], register_type: 1)
-    Rails.logger.error("【ロガーテスト】")
     if user&.authenticate(params[:password])
       create_token(user.id)
     else
-      Rails.logger.error("login failed.")
+      logger.error("login failed.")
       render status: :unauthorized
     end
   end
