@@ -25,5 +25,6 @@ module KakeboRails
     config.api_only = true
     config.autoload_paths << "#{Rails.root}/lib"
     config.middleware.use ActionDispatch::Cookies
+    config.logger = ActiveSupport::Logger.new($stdout)
   end
 end

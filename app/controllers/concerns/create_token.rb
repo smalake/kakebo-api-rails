@@ -10,6 +10,7 @@ module CreateToken
     #   user.update(refresh_token: refresh_token)
 
     # cookies[:jwt] = refresh_token
+    logger.info("user_id: #{user_id} is login.")
     render json: { accessToken: access_token }, status: :ok
   end
 end
