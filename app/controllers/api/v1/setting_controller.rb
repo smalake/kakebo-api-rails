@@ -43,7 +43,7 @@ class Api::V1::SettingController < ApplicationController
     begin
       user = User.find(@auth_user_id)
       data = { group_id: user.group_id, parent_name: user.name }
-      token = JWT.encode({ data: data, exp: Time.current.since(10.minute).to_i }, ENV["TOKEN_SECRET"])
+      token = Rails.application.message_verifier(ENV["TOKEN_SECRET"]).generate(data)
 
       render json: { url: "#{ENV["FRONT_URL"]}/join/#{token}" }, status: :ok
     rescue => e
