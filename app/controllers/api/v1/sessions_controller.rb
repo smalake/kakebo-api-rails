@@ -6,7 +6,6 @@ class Api::V1::SessionsController < ApplicationController
     if user&.authenticate(params[:password])
       create_token(user.id)
     else
-      logger.error("login failed.")
       render status: :unauthorized
     end
   end
