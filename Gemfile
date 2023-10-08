@@ -53,3 +53,5 @@ gem "jwt"
 gem "dotenv"
 gem "planetscale_rails"
 # gem "rails_semantic_logger" # ログをJSON形式にする
+
+gem "newrelic_rpm"
