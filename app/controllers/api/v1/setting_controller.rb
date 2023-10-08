@@ -45,7 +45,7 @@ class Api::V1::SettingController < ApplicationController
       data = { group_id: user.group_id, parent_name: user.name }
       token = JWT.encode({ data: data, exp: Time.current.since(10.minute).to_i }, ENV["TOKEN_SECRET"])
 
-      render json: { url: "#{ENV["FRONT_URL"]}/join/#{token}" }, status: :ok
+      render json: { url: "#{ENV["FRONT_URL"]}/join?group=#{token}" }, status: :ok
     rescue => e
       render json: { message: "faild to generate invite link", error: e }, status: :internal_server_error
     end
