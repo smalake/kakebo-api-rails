@@ -82,8 +82,9 @@ class Api::V1::SessionsController < ApplicationController
   # 招待リンクから管理者の名前を取得
   def get_parent_name
     begin
-      data = Rails.application.message_verifier(ENV["TOKEN_SECRET"]).verify(params[:group])[:parent_name]
-      render json: { name: data }, status: :ok
+      payload, = JWT.decode(params[:group], ENV["TOKEN_SECRET"])
+      name = payload["data"]["parent_name"]
+      render json: { name: name }, status: :ok
     rescue => e
       render json: { message: "faild to get parent name", error: e }, status: :internal_server_error
     end
