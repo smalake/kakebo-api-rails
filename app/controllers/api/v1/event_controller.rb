@@ -16,7 +16,7 @@ class Api::V1::EventController < ApplicationController
       user = User.find(@auth_user_id)
       ActiveRecord::Base.transaction do
         if params[:amount2] == 0
-          Event.create!(
+          event = Event.create!(
             amount: params[:amount1],
             category: params[:category1],
             store_name: params[:store_name],
@@ -25,6 +25,7 @@ class Api::V1::EventController < ApplicationController
             update_user: @auth_user_id,
             group_id: user.group_id,
           )
+          event_id = [event.id]
         else
           event1 =
             Event.new(
@@ -37,7 +38,7 @@ class Api::V1::EventController < ApplicationController
               group_id: user.group_id,
             )
           event1.save!
-          Event.create!(
+          event2 = Event.create!(
             amount: params[:amount2],
             category: params[:category2],
             store_name: params[:store_name],
@@ -46,8 +47,9 @@ class Api::V1::EventController < ApplicationController
             update_user: @auth_user_id,
             group_id: user.group_id,
           )
+          event_id = [event1.id, event2.id]
         end
-        render json: { message: "Event register success" }, status: :ok
+        render json: { message: "Event register success", data: event_id }, status: :ok
       end
     rescue => e
       render json: {
@@ -63,13 +65,14 @@ class Api::V1::EventController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         if params[:amount2] == 0
-          Private.create!(
+          event = Private.create!(
             amount: params[:amount1],
             category: params[:category1],
             store_name: params[:store_name],
             date: params[:date],
             user_id: @auth_user_id,
           )
+          event_id = [event.id]
         else
           event1 =
             Private.new(
@@ -80,15 +83,16 @@ class Api::V1::EventController < ApplicationController
               user_id: @auth_user_id,
             )
           event1.save!
-          Private.create!(
+          event2 = Private.create!(
             amount: params[:amount2],
             category: params[:category2],
             store_name: params[:store_name],
             date: params[:date],
             user_id: @auth_user_id,
           )
+          event_id = [event1.id, event2.id]
         end
-        render json: { message: "Private Event register success" }, status: :ok
+        render json: { message: "Private Event register success", data: event_id }, status: :ok
       end
     rescue => e
       render json: {
@@ -126,60 +130,23 @@ class Api::V1::EventController < ApplicationController
     user = User.find(@auth_user_id)
 
     all_data = Event.where(group_id: user.group_id)
-    grouping_events(all_data)
-  end
-
-  # 全イベントをグルーピング
-  def grouping_events(all_data)
     begin
-      events = {}
-      totals = {}
-      graphs = {}
-
+      events = []
       all_data.each do |data|
         format_date = Time.zone.parse(data.date)
-
         event = {
           "id" => data.id,
           "amount" => data.amount,
           "category" => data.category,
-          "store_name" => data.store_name,
-          "data" => data.date,
-          "create_user" => data.create_user,
-          "update_user" => data.update_user,
-          "created_at" => data.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-          "updated_at" => data.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+          "store" => data.store_name,
+          "date" => format_date.strftime("%Y-%m-%d"),
         }
-
-        # イベントを格納
-        if events.key?(format_date.strftime("%Y-%m-%d"))
-          events[format_date.strftime("%Y-%m-%d")].push(event)
-        else
-          events[format_date.strftime("%Y-%m-%d")] = [event]
-        end
-
-        # 月ごとの合計
-        if totals.key?(format_date.strftime("%Y-%m"))
-          totals[format_date.strftime("%Y-%m")] += data.amount
-        else
-          totals[format_date.strftime("%Y-%m")] = data.amount
-        end
-
-        # グラフ用データ
-        if graphs.key?(format_date.strftime("%Y-%m"))
-          graphs[format_date.strftime("%Y-%m")][
-            data.category
-          ] += data.amount
-        else
-          graph = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-          graph[data.category] = data.amount
-          graphs[format_date.strftime("%Y-%m")] = graph
-        end
+        events.push(event)
       end
-      render json: { "event" => events, "total" => totals, "graph" => graphs }, status: :ok
+      render json: { "events" => events }, status: :ok
     rescue => e
       render json: {
-               message: "Event grouping failed",
+               message: "All Event get to failed",
                errors: e,
              },
              status: :internal_server_error
