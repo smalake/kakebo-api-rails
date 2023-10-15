@@ -110,21 +110,25 @@ class Api::V1::EventController < ApplicationController
   # イベントの更新
   def update
     begin
-      ActiveRecord::Base.transaction do
-        event = Event.find(params[:id])
-        event.update(
-          amount: params[:amount],
-          category: params[:category],
-          store_name: params[:store_name],
-          date: params[:date],
-          update_user: @auth_user_id,
-        )
-        # リビジョンの更新
-        user = User.find(@auth_user_id)
-        group = Group.find(user.group_id)
-        group.update(revision: group.revision + 1)
+      user = User.find(@auth_user_id)
+      event = Event.find(params[:id])
+      if user.group_id != event.group_id
+        render json: { message: "forbidden" }, status: :forbidden
+      else
+        ActiveRecord::Base.transaction do
+          event.update(
+            amount: params[:amount],
+            category: params[:category],
+            store_name: params[:store_name],
+            date: params[:date],
+            update_user: @auth_user_id,
+          )
+          # リビジョンの更新
+          group = Group.find(user.group_id)
+          group.update(revision: group.revision + 1)
+        end
+        render json: { message: "Event updated successfully" }, status: :ok
       end
-      render json: { message: "Event updated successfully" }, status: :ok
     rescue => e
       render json: {
                message: "Event update failed",
@@ -166,39 +170,45 @@ class Api::V1::EventController < ApplicationController
   # 指定したイベントを取得
   def get_one
     begin
+      user = User.find(@auth_user_id)
       id = params[:id]
-      data =
-        Event
-          .select(
-            "events.amount",
-            "events.category",
-            "events.store_name",
-            "events.date",
-            "events.created_at",
-            "events.updated_at",
-            "users1.name as create_user",
-            "users2.name as update_user"
-          )
-          .joins(
-            "LEFT JOIN users AS users1 ON events.create_user = users1.id"
-          )
-          .joins(
-            "LEFT JOIN users AS users2 ON events.update_user = users2.id"
-          )
-          .where("events.id = ?", id)
-          .first
+      event = Event.find(id)
+      if user.group_id != event.group_id
+        render json: { message: "forbidden" }, status: :forbidden
+      else
+        data =
+          Event
+            .select(
+              "events.amount",
+              "events.category",
+              "events.store_name",
+              "events.date",
+              "events.created_at",
+              "events.updated_at",
+              "users1.name as create_user",
+              "users2.name as update_user"
+            )
+            .joins(
+              "LEFT JOIN users AS users1 ON events.create_user = users1.id"
+            )
+            .joins(
+              "LEFT JOIN users AS users2 ON events.update_user = users2.id"
+            )
+            .where("events.id = ?", id)
+            .first
 
-      result = {
-        "amount" => data.amount,
-        "category" => data.category,
-        "store_name" => data.store_name,
-        "date" => data.date,
-        "create_user" => data.create_user,
-        "update_user" => data.update_user,
-        "created_at" => data.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-        "updated_at" => data.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
-      }
-      render json: result, status: :ok
+        result = {
+          "amount" => data.amount,
+          "category" => data.category,
+          "store_name" => data.store_name,
+          "date" => data.date,
+          "create_user" => data.create_user,
+          "update_user" => data.update_user,
+          "created_at" => data.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+          "updated_at" => data.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        render json: result, status: :ok
+      end
     rescue => e
       render json: {
                message: "Event get failed",
@@ -211,14 +221,19 @@ class Api::V1::EventController < ApplicationController
   # 指定したイベントを削除
   def delete
     begin
-      ActiveRecord::Base.transaction do
-        Event.find(params[:id]).destroy
-        # リビジョンの更新
-        user = User.find(@auth_user_id)
-        group = Group.find(user.group_id)
-        group.update(revision: group.revision + 1)
+      user = User.find(@auth_user_id)
+      event = Event.find(params[:id])
+      if user.group_id != event.group_id
+        render json: { message: "forbidden" }, status: :forbidden
+      else
+        ActiveRecord::Base.transaction do
+          event.destroy
+          # リビジョンの更新
+          group = Group.find(user.group_id)
+          group.update(revision: group.revision + 1)
+        end
+        render json: { message: "Event delete success" }, status: :ok
       end
-      render json: { message: "Event delete success" }, status: :ok
     rescue => e
       render json: {
                message: "Event delete failed",
