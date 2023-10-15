@@ -16,7 +16,7 @@ class Api::V1::EventController < ApplicationController
       user = User.find(@auth_user_id)
       ActiveRecord::Base.transaction do
         if params[:amount2] == 0
-          event = Event.create!(
+          event = Event.new(
             amount: params[:amount1],
             category: params[:category1],
             store_name: params[:store_name],
@@ -25,6 +25,7 @@ class Api::V1::EventController < ApplicationController
             update_user: @auth_user_id,
             group_id: user.group_id,
           )
+          event.save!
           event_id = [event.id]
         else
           event1 =
@@ -49,6 +50,9 @@ class Api::V1::EventController < ApplicationController
           )
           event_id = [event1.id, event2.id]
         end
+        # リビジョンの更新
+        group = Group.find(user.group_id)
+        group.update(revision: group.revision + 1)
         render json: { message: "Event register success", data: event_id }, status: :ok
       end
     rescue => e
@@ -106,14 +110,20 @@ class Api::V1::EventController < ApplicationController
   # イベントの更新
   def update
     begin
-      event = Event.find(params[:id])
-      event.update(
-        amount: params[:amount],
-        category: params[:category],
-        store_name: params[:store_name],
-        date: params[:date],
-        update_user: @auth_user_id,
-      )
+      ActiveRecord::Base.transaction do
+        event = Event.find(params[:id])
+        event.update(
+          amount: params[:amount],
+          category: params[:category],
+          store_name: params[:store_name],
+          date: params[:date],
+          update_user: @auth_user_id,
+        )
+        # リビジョンの更新
+        user = User.find(@auth_user_id)
+        group = Group.find(user.group_id)
+        group.update(revision: group.revision + 1)
+      end
       render json: { message: "Event updated successfully" }, status: :ok
     rescue => e
       render json: {
@@ -201,7 +211,13 @@ class Api::V1::EventController < ApplicationController
   # 指定したイベントを削除
   def delete
     begin
-      Event.find(params[:id]).destroy
+      ActiveRecord::Base.transaction do
+        Event.find(params[:id]).destroy
+        # リビジョンの更新
+        user = User.find(@auth_user_id)
+        group = Group.find(user.group_id)
+        group.update(revision: group.revision + 1)
+      end
       render json: { message: "Event delete success" }, status: :ok
     rescue => e
       render json: {
