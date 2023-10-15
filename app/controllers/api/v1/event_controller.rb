@@ -227,4 +227,15 @@ class Api::V1::EventController < ApplicationController
              status: :unprocessable_entity
     end
   end
+
+  # 現在のリビジョンを取得
+  def revision
+    begin
+      user = User.find(@auth_user_id)
+      group = Group.find(user.group_id)
+      render json: { revision: group.revision }, status: :ok
+    rescue => e
+      render json: { message: "Failed to get revision", errors: e }, status: :internal_server_error
+    end
+  end
 end
