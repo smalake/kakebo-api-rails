@@ -4,13 +4,17 @@ class Api::V1::PrivateController < ApplicationController
   def update
     begin
       event = Private.find(params[:id])
-      event.update(
-        amount: params[:amount],
-        category: params[:category],
-        store_name: params[:store_name],
-        date: params[:date],
-      )
-      render json: { message: "Private Event updated successfully" }, status: :ok
+      if @auth_user_id != event.user_id
+        render json: { message: "forbidden" }, status: :forbidden
+      else
+        event.update(
+          amount: params[:amount],
+          category: params[:category],
+          store_name: params[:store_name],
+          date: params[:date],
+        )
+        render json: { message: "Private Event updated successfully" }, status: :ok
+      end
     rescue => e
       render json: {
                message: "Private Event update failed",
@@ -50,16 +54,19 @@ class Api::V1::PrivateController < ApplicationController
   def get_one
     begin
       data = Private.find(params[:id])
-
-      result = {
-        "amount" => data.amount,
-        "category" => data.category,
-        "store_name" => data.store_name,
-        "date" => data.date,
-        "created_at" => data.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-        "updated_at" => data.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
-      }
-      render json: result, status: :ok
+      if @auth_user_id != data.user_id
+        render json: { message: "forbidden" }, status: :forbidden
+      else
+        result = {
+          "amount" => data.amount,
+          "category" => data.category,
+          "store_name" => data.store_name,
+          "date" => data.date,
+          "created_at" => data.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+          "updated_at" => data.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        render json: result, status: :ok
+      end
     rescue => e
       render json: {
                message: "Private Event get failed",
@@ -72,8 +79,13 @@ class Api::V1::PrivateController < ApplicationController
   # 指定したイベントを削除
   def delete
     begin
-      Private.find(params[:id]).destroy
-      render json: { message: "Private Event delete success" }, status: :ok
+      event = Private.find(params[:id])
+      if @auth_user_id != event.user_id
+        render json: { message: "forbidden" }, status: :forbidden
+      else
+        event.destroy
+        render json: { message: "Private Event delete success" }, status: :ok
+      end
     rescue => e
       render json: {
                message: "Private Event delete failed",
