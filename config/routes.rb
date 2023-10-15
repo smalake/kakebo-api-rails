@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       get "/event", to: "event#get_all"
       get "/event/:id", to: "event#get_one"
       delete "/event/:id", to: "event#delete"
+      get "/revision", to: "event#revision"
 
       # プライベートイベント
       put "/private/:id", to: "private#update"
