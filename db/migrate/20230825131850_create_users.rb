@@ -6,7 +6,7 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.integer :group_id, null: false
       t.string :name
       t.integer :register_type
-      t.string :refresh_token
+      t.boolean :is_auth
 
       t.timestamps
     end

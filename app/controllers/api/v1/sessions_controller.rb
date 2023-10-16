@@ -27,11 +27,23 @@ class Api::V1::SessionsController < ApplicationController
   # 新規登録
   def register
     begin
-      ActiveRecord::Base.transaction do
-        # メールアドレスの重複チェック
-        if User.find_by(email: params[:email])
+      # メールアドレスの重複チェック
+      if User.find_by(email: params[:email])
+        if User.find_by(email: params[:email]).is_auth == 1
           render json: { error: "メールアドレスがすでに使用されています。" }, status: :conflict
           return
+        else
+          # メールアドレスが未認証の場合は、認証コードを再送信
+          UserMailer.with(email: params[:email]).auth_mail.deliver_now
+          render json: { message: "register ok" }, status: :ok
+          return
+        end
+      end
+      ActiveRecord::Base.transaction do
+        if params[:type] == 1
+          is_auth = 0
+        else
+          is_auth = 1
         end
 
         # DBへ登録処理
@@ -43,12 +55,16 @@ class Api::V1::SessionsController < ApplicationController
           name: params[:name],
           group_id: group.id,
           register_type: params[:type],
+          is_auth: is_auth,
         )
         user.save!
         group.update(
           manage_user: user.id,
         )
-        create_token(user.id)
+
+        # create_token(user.id)
+        UserMailer.with(mail: params[:email]).auth_mail.deliver_now
+        render json: { message: "register ok" }, status: :ok
       end
     rescue ActiveRecord::RecordInvalid => e
       render json: {
