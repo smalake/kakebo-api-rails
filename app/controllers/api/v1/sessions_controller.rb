@@ -27,11 +27,27 @@ class Api::V1::SessionsController < ApplicationController
   # 新規登録
   def register
     begin
-      ActiveRecord::Base.transaction do
-        # メールアドレスの重複チェック
-        if User.find_by(email: params[:email])
+      random_number = rand(100000..999999)
+      auth_code = "%06d" % random_number
+      # メールアドレスの重複チェック
+      u = User.find_by(email: params[:email])
+      if u
+        if u.auth_code == 0
+          # 認証済み（auth_code=0）のユーザの場合
           render json: { error: "メールアドレスがすでに使用されています。" }, status: :conflict
           return
+        else
+          # メールアドレスが未認証の場合は、認証コードを再送信
+          u.update(auth_code: auth_code, password_digest: BCrypt::Password.create(params[:password]), name: params[:name])
+          session[:email] = params[:email]
+          UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
+          render json: { message: "register ok" }, status: :ok
+          return
+        end
+      end
+      ActiveRecord::Base.transaction do
+        if params[:type] != 1
+          auth_code = 0
         end
 
         # DBへ登録処理
@@ -43,12 +59,16 @@ class Api::V1::SessionsController < ApplicationController
           name: params[:name],
           group_id: group.id,
           register_type: params[:type],
+          auth_code: auth_code,
         )
         user.save!
         group.update(
           manage_user: user.id,
         )
-        create_token(user.id)
+        # create_token(user.id)
+        session[:email] = params[:email]
+        UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
+        render json: { message: "register ok" }, status: :ok
       end
     rescue ActiveRecord::RecordInvalid => e
       render json: {
@@ -56,7 +76,29 @@ class Api::V1::SessionsController < ApplicationController
              },
              status: :unprocessable_entity
     rescue => e
-      render json: { 'message': e }, status: :internal_server_error
+      render json: { error: e }, status: :internal_server_error
+    end
+  end
+
+  # メールアドレス認証
+  def auth_code
+    begin
+      user = User.find_by(email: session[:email])
+      if user.auth_code == params[:code].to_i
+        valid_time = Time.now - user.updated_at
+        # 有効期限は5分
+        if valid_time < 300
+          user.update(auth_code: 0)
+          session[:email].clear
+          render json: { message: "register ok" }, status: :ok
+        else
+          render json: { message: "expired" }, status: :unauthorized
+        end
+      else
+        render json: { message: "invalid code" }, status: :unauthorized
+      end
+    rescue => e
+      render json: { error: e }, status: :internal_server_error
     end
   end
 
