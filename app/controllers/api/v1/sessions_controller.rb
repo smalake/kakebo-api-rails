@@ -105,8 +105,30 @@ class Api::V1::SessionsController < ApplicationController
   # グループへの参加（子として新規登録）
   def join
     begin
+      random_number = rand(100000..999999)
+      auth_code = "%06d" % random_number
+      # メールアドレスの重複チェック
+      u = User.find_by(email: params[:email])
+      if u
+        if u.auth_code == 0
+          # 認証済み（auth_code=0）のユーザの場合
+          render json: { error: "メールアドレスがすでに使用されています。" }, status: :conflict
+          return
+        else
+          # メールアドレスが未認証の場合は、認証コードを再送信
+          u.update(auth_code: auth_code, password_digest: BCrypt::Password.create(params[:password]), name: params[:name])
+          session[:email] = params[:email]
+          UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
+          render json: { message: "register ok" }, status: :ok
+          return
+        end
+      end
       # グループIDを取得
       payload, = JWT.decode(params[:group], ENV["TOKEN_SECRET"])
+
+      if params[:type] != 1
+        auth_code = 0
+      end
       # DBへ登録処理
       user = User.create!(
         email: params[:email],
@@ -114,10 +136,13 @@ class Api::V1::SessionsController < ApplicationController
         password_digest: BCrypt::Password.create(params[:password]),
         group_id: payload["data"]["group_id"],
         register_type: params[:type],
+        auth_code: auth_code,
       )
-      create_token(user.id)
+      session[:email] = params[:email]
+      UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
+      render json: { message: "register ok" }, status: :ok
     rescue => e
-      render json: { 'message': e }, status: :internal_server_error
+      render json: { message: e }, status: :internal_server_error
     end
   end
 
