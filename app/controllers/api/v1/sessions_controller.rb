@@ -71,11 +71,13 @@ class Api::V1::SessionsController < ApplicationController
         render json: { message: "register ok" }, status: :ok
       end
     rescue ActiveRecord::RecordInvalid => e
+      logger.error "register error(unprocessable_entity): #{e}"
       render json: {
                errors: e.record.errors.full_messages,
              },
              status: :unprocessable_entity
     rescue => e
+      logger.error "register error(internal_server_error): #{e}"
       render json: { error: e }, status: :internal_server_error
     end
   end
@@ -142,6 +144,7 @@ class Api::V1::SessionsController < ApplicationController
       UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
       render json: { message: "register ok" }, status: :ok
     rescue => e
+      logger.error "join error(internal_server_error): #{e}"
       render json: { message: e }, status: :internal_server_error
     end
   end
