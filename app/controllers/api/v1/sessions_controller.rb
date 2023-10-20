@@ -3,7 +3,9 @@ class Api::V1::SessionsController < ApplicationController
   # ログイン
   def login
     user = User.find_by(email: params[:email], register_type: 1)
-    if user&.authenticate(params[:password])
+    if user.auth_code != 0
+      render status: :bad_request
+    elsif user&.authenticate(params[:password])
       create_token(user.id)
     else
       render status: :unauthorized
@@ -20,6 +22,7 @@ class Api::V1::SessionsController < ApplicationController
         render json: { message: "not register user" }, status: :unauthorized
       end
     rescue => e
+      logger.error "google login error(unauthorized): #{e}"
       render json: { error: e }, status: :unauthorized
     end
   end
@@ -39,7 +42,6 @@ class Api::V1::SessionsController < ApplicationController
         else
           # メールアドレスが未認証の場合は、認証コードを再送信
           u.update(auth_code: auth_code, password_digest: BCrypt::Password.create(params[:password]), name: params[:name])
-          session[:email] = params[:email]
           UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
           render json: { message: "register ok" }, status: :ok
           return
@@ -66,7 +68,6 @@ class Api::V1::SessionsController < ApplicationController
           manage_user: user.id,
         )
         # create_token(user.id)
-        session[:email] = params[:email]
         UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
         render json: { message: "register ok" }, status: :ok
       end
@@ -85,13 +86,14 @@ class Api::V1::SessionsController < ApplicationController
   # メールアドレス認証
   def auth_code
     begin
-      user = User.find_by(email: session[:email])
+      logger.info "email=#{params[:email]}"
+      user = User.find_by(email: params[:email])
+      logger.info "user.auth_code=#{user.auth_code}"
       if user.auth_code == params[:code].to_i
         valid_time = Time.now - user.updated_at
         # 有効期限は5分
         if valid_time < 300
           user.update(auth_code: 0)
-          session[:email].clear
           render json: { message: "register ok" }, status: :ok
         else
           render json: { message: "expired" }, status: :unauthorized
@@ -100,6 +102,22 @@ class Api::V1::SessionsController < ApplicationController
         render json: { message: "invalid code" }, status: :unauthorized
       end
     rescue => e
+      logger.error "auth code error(internal_server_error): #{e}"
+      render json: { error: e }, status: :internal_server_error
+    end
+  end
+
+  # 認証コードの再送信
+  def resend_code
+    begin
+      random_number = rand(100000..999999)
+      auth_code = "%06d" % random_number
+      user = User.find_by(email: params[:email])
+      user.update(auth_code: auth_code)
+      UserMailer.with(email: params[:email], auth_code: auth_code).auth_mail.deliver_now
+      render json: { message: "register ok" }, status: :ok
+    rescue => e
+      logger.error "resend code error: #{e}"
       render json: { error: e }, status: :internal_server_error
     end
   end

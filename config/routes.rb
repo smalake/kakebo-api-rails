@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       get "/get-name/:group", to: "sessions#get_parent_name", constraints: { group: /[^\/]+/ }
       get "/login-check", to: "sessions#login_check"
       post "/auth-code", to: "sessions#auth_code"
+      get "/resend-code", to: "sessions#resend_code"
       # get "/refresh", to: "sessions#refresh"
 
       # イベント
