@@ -64,4 +64,15 @@ class Api::V1::SettingController < ApplicationController
       render json: { message: "check error", error: e }, status: internal_server_error
     end
   end
+
+  # お問い合わせフォーム
+  def send_mail
+    begin
+      UserMailer.with(email: params[:email], name: params[:name], description: params[:description]).contact.deliver_now
+      render status: :ok
+    rescue => e
+      logger.error "contact mail send error: #{e}"
+      render status: :internal_server_error
+    end
+  end
 end
