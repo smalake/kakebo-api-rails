@@ -11,3 +11,6 @@ down:
 
 migrate:
 	docker-compose run web rails db:migrate
+
+logs:
+	docker-compose logs
