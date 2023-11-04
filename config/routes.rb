@@ -26,6 +26,12 @@ Rails.application.routes.draw do
       get "/private/:id", to: "private#get_one"
       delete "/private/:id", to: "private#delete"
 
+      # パターン
+      get "/pattern", to: "pattern#get"
+      post "/pattern", to: "pattern#register"
+      put "/pattern/:id", to: "pattern#update"
+      delete "/pattern/:id", to: "pattern#delete"
+
       # 設定
       get "/display-name", to: "setting#get"
       put "/display-name", to: "setting#update"

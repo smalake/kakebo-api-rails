@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_21_035624) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_28_053042) do
   create_table "events", charset: "utf8mb4", force: :cascade do |t|
     t.integer "amount", null: false
     t.integer "category"
@@ -26,6 +26,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_21_035624) do
   create_table "groups", charset: "utf8mb4", force: :cascade do |t|
     t.string "manage_user"
     t.integer "revision", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "patterns", charset: "utf8mb4", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "store_name", null: false
+    t.integer "category", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
