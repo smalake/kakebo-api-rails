@@ -5,6 +5,7 @@ class CreatePrivates < ActiveRecord::Migration[7.0]
       t.integer :category
       t.string :date
       t.string :store_name
+      t.string :memo
       t.integer :user_id, null: false
 
       t.timestamps

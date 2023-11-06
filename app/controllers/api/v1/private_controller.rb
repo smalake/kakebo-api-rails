@@ -11,6 +11,7 @@ class Api::V1::PrivateController < ApplicationController
           amount: params[:amount],
           category: params[:category],
           store_name: params[:store_name],
+          memo: params[:memo],
           date: params[:date],
         )
         render json: { message: "Private Event updated successfully" }, status: :ok
@@ -61,6 +62,7 @@ class Api::V1::PrivateController < ApplicationController
           "amount" => data.amount,
           "category" => data.category,
           "store_name" => data.store_name,
+          "memo" => data.memo,
           "date" => data.date,
           "created_at" => data.created_at.strftime("%Y-%m-%d %H:%M:%S"),
           "updated_at" => data.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
