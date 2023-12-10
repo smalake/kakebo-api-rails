@@ -187,7 +187,12 @@ class Api::V1::SessionsController < ApplicationController
       payload, = JWT.decode(token, ENV["TOKEN_SECRET"])
       user_id = payload["data"]["user_id"]
       if user_id
-        render status: :ok
+        group = Group.where(manage_user: user_id).count
+        if group == 0
+          render json: { parent: false }, status: :ok
+        else
+          render json: { parent: true }, status: :ok
+        end
       else
         render status: :unauthorized
       end
